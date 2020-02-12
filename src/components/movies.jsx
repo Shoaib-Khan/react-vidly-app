@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { getMovies, deleteMovie } from "../services/fakeMovieService";
+import Like from "./common/like";
 
 class Movies extends Component {
   state = {
@@ -11,9 +12,16 @@ class Movies extends Component {
     this.setState({ movies: getMovies() });
   }
 
+  handleLike(movie) {
+    const movies = [...this.state.movies];
+    const index = movies.indexOf(movie);
+    movies[index].liked = !movies[index].liked;
+    this.setState({ movies });
+  }
+
   renderTableData() {
     return this.state.movies.map(movie => {
-      const { _id, title, genre, numberInStock, dailyRentalRate } = movie;
+      const { _id, title, genre, numberInStock, dailyRentalRate, liked } = movie;
       return (
         <tr key={_id}>
           <td>{title}</td>
@@ -21,7 +29,18 @@ class Movies extends Component {
           <td>{numberInStock}</td>
           <td>{dailyRentalRate}</td>
           <td>
-            <button className="btn btn-danger btn-sm" onClick={() => this.handleDeleteMovie(_id)}>Delete</button>
+            <Like
+              liked={liked}
+              onClick={() => this.handleLike(movie)}
+            />
+          </td>
+          <td>
+            <button
+              className="btn btn-danger btn-sm"
+              onClick={() => this.handleDeleteMovie(_id)}
+            >
+              Delete
+            </button>
           </td>
         </tr>
       );
@@ -29,17 +48,11 @@ class Movies extends Component {
   }
 
   render() {
-    const {length: count} = this.state.movies;
+    const { length: count } = this.state.movies;
     return (
       <React.Fragment>
-        {count != 0 && (
-          <p>
-            Showing {count} movies in the database.
-          </p>
-        )}
-        {count === 0 && (
-          <p>There are no movies in the database.</p>
-        )}
+        {count != 0 && <p>Showing {count} movies in the database.</p>}
+        {count === 0 && <p>There are no movies in the database.</p>}
         {count != 0 && (
           <table id="movies" className="table">
             <thead>
@@ -47,6 +60,7 @@ class Movies extends Component {
               <th>Genre</th>
               <th>Stock</th>
               <th>Rate</th>
+              <th></th>
               <th></th>
             </thead>
             <tbody>{this.renderTableData()}</tbody>
